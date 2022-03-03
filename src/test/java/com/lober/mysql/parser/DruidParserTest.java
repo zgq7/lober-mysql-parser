@@ -14,7 +14,7 @@ public class DruidParserTest implements SQLParserTest {
     @Test
     @Override
     public void parser() {
-        final SQLStatement sqlStatement = SQLUtils.parseStatements(getSQL(), getDBType()).get(0);
+        final SQLStatement sqlStatement = SQLUtils.parseStatements(getSelectRightSQL(), getDBType()).get(0);
         System.out.println(sqlStatement.toString());
     }
 

@@ -16,7 +16,7 @@ public class JSQLParserTest implements SQLParserTest {
     @Override
     public void parser() {
         try {
-            final Statement statement = CCJSqlParserUtil.parse(getSQL());
+            final Statement statement = CCJSqlParserUtil.parse(getSelectRightSQL());
             System.out.println(statement.toString());
         } catch (Exception e) {
             e.printStackTrace();

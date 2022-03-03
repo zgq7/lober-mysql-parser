@@ -7,8 +7,20 @@ package com.lober.mysql.parser;
  **/
 public interface SQLParserTest {
 
-    default String getSQL() {
-        return "select rank from t_kol ";
+    default String getSelectRightSQL() {
+        return "select id from t_personal_media_task ";
+    }
+
+    default String getSelectErrorSQL() {
+        return "select rank from t_ranking_list_20211222 ";
+    }
+
+    default String getInsertRightSQL() {
+        return "insert into t_personal_media_task(id) select 100678811 ";
+    }
+
+    default String getInsertErrorSQL() {
+        return "insert into t_personal_media_task_channel(id,task_id) values(100678811 , ?) ";
     }
 
     default String getDBType() {

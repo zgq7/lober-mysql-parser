@@ -1,15 +1,17 @@
 package com.lober.mysql.parser;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import org.apache.groovy.util.Maps;
 import org.apache.shardingsphere.driver.api.ShardingSphereDataSourceFactory;
 import org.apache.shardingsphere.infra.config.RuleConfiguration;
-import org.apache.shardingsphere.infra.config.algorithm.ShardingSphereAlgorithmConfiguration;
-import org.apache.shardingsphere.sharding.api.config.ShardingRuleConfiguration;
+import org.apache.shardingsphere.sharding.algorithm.config.AlgorithmProvidedShardingRuleConfiguration;
+import org.apache.shardingsphere.sharding.algorithm.sharding.inline.InlineShardingAlgorithm;
 import org.apache.shardingsphere.sharding.api.config.rule.ShardingTableRuleConfiguration;
 import org.apache.shardingsphere.sharding.api.config.strategy.sharding.StandardShardingStrategyConfiguration;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -27,34 +29,33 @@ public class ShardingJdbcConfig {
         dataSourceHashMap.put("master", getDataSource());
 
         List<RuleConfiguration> tableRuleConfigurationList = new ArrayList<>();
-        tableRuleConfigurationList.add(shardingRuleConfiguration());
+        tableRuleConfigurationList.add(algorithmProvidedShardingRuleConfiguration());
 
         Properties properties = new Properties();
         properties.put("sql-show", true);
-        return ShardingSphereDataSourceFactory.createDataSource(dataSourceHashMap, tableRuleConfigurationList, properties);
+        return ShardingSphereDataSourceFactory.createDataSource("logic_db", dataSourceHashMap, tableRuleConfigurationList, properties);
     }
 
-    /**
-     * t_personal_media_task_channel 分表配置
-     **/
-    public static ShardingRuleConfiguration shardingRuleConfiguration() {
+    public static AlgorithmProvidedShardingRuleConfiguration algorithmProvidedShardingRuleConfiguration() {
         // 分片逻辑表名称，真实表名称
         ShardingTableRuleConfiguration tableRuleConfiguration = new ShardingTableRuleConfiguration(
                 "t_personal_media_task_channel",
-                "master.t_personal_media_task_channel_${0..3}");
+                "master.t_personal_media_task_channel_${0..7}");
         // 分片规则
-        tableRuleConfiguration.setTableShardingStrategy(
-                new StandardShardingStrategyConfiguration("task_id", "pmtcShardingAlgorithm"));
+        tableRuleConfiguration.setTableShardingStrategy(new StandardShardingStrategyConfiguration("task_id", "pmtc-sharding-algorithm-name"));
         Properties properties = new Properties();
-        properties.setProperty("algorithm-expression", "t_personal_media_task_channel_$->{task_id % 4}");
+        properties.setProperty("algorithm-expression", "t_personal_media_task_channel_$->{task_id % 8}");
+        InlineShardingAlgorithm inlineShardingAlgorithm = new InlineShardingAlgorithm();
+        inlineShardingAlgorithm.setProps(properties);
+        inlineShardingAlgorithm.init();
 
-        // 绑定分片规则、表路由规则
-        ShardingRuleConfiguration shardingRuleConfiguration = new ShardingRuleConfiguration();
-        shardingRuleConfiguration.getShardingAlgorithms()
-                .putIfAbsent("pmtcShardingAlgorithm", new ShardingSphereAlgorithmConfiguration("INLINE", properties));
-        shardingRuleConfiguration.getTables().add(tableRuleConfiguration);
-        shardingRuleConfiguration.getBindingTableGroups().add("t_personal_media_task_channel");
-        return shardingRuleConfiguration;
+        // 分片计算配置
+        AlgorithmProvidedShardingRuleConfiguration algorithmProvidedShardingRuleConfiguration = new AlgorithmProvidedShardingRuleConfiguration();
+        algorithmProvidedShardingRuleConfiguration.setTables(Collections.singleton(tableRuleConfiguration));
+        algorithmProvidedShardingRuleConfiguration.setBindingTableGroups(Collections.singleton("t_personal_media_task_channel"));
+        algorithmProvidedShardingRuleConfiguration.setShardingAlgorithms(Maps.of("pmtc-sharding-algorithm-name", inlineShardingAlgorithm));
+
+        return algorithmProvidedShardingRuleConfiguration;
     }
 
     private static DataSource getDataSource() {
