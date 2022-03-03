@@ -1,6 +1,7 @@
 package com.lober.mysql.parser;
 
 import org.antlr.v4.runtime.*;
+import org.apache.shardingsphere.driver.jdbc.core.connection.ShardingSphereConnection;
 import org.apache.shardingsphere.sql.parser.api.SQLVisitorEngine;
 import org.apache.shardingsphere.sql.parser.api.parser.SQLParser;
 import org.apache.shardingsphere.sql.parser.core.ParseASTNode;
@@ -50,9 +51,9 @@ public class AntlrParserTest implements SQLParserTest {
 
     @Test
     public void execute() {
-        Connection connection = null;
+        ShardingSphereConnection connection = null;
         try {
-            connection = ShardingJdbcConfig.shardingDataSource().getConnection();
+            connection = (ShardingSphereConnection) ShardingJdbcConfig.shardingDataSource().getConnection();
             connection.prepareStatement(getSQL()).execute();
         } catch (Exception e) {
             e.printStackTrace();
