@@ -12,7 +12,7 @@ public interface SQLParserTest {
     }
 
     default String getSelectErrorSQL() {
-        return "select rank from t_ranking_list_20211222 ";
+        return "select rank from t_ranking_list_20211222 where id = ? ";
     }
 
     default String getInsertRightSQL() {
