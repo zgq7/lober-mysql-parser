@@ -18,6 +18,8 @@ public class JSQLParserTest implements SQLParserTest {
         try {
             final Statement statement = CCJSqlParserUtil.parse(getSelectRightSQL());
             System.out.println(statement.toString());
+            final Statement statement1 = CCJSqlParserUtil.parse(getShowSQL());
+            System.out.println(statement1.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }

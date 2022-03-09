@@ -23,6 +23,10 @@ public interface SQLParserTest {
         return "insert into t_personal_media_task_channel(id,task_id) values(100678811 , ?) ";
     }
 
+    default String getShowSQL() {
+        return "show tables like 't_xxx' ";
+    }
+
     default String getDBType() {
         return "MySQL";
     }
